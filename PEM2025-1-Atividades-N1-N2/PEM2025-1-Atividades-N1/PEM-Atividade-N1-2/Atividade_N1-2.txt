@@ -1,0 +1,125 @@
+/*-------------------------------------------------------*
+*                      FATEC Ipiranga                    *
+* Disciplina: Programaçao Estruturada e Modular          *
+*          Prof. Veríssimo                               *
+*--------------------------------------------------------*
+* Objetivo do Programa: Vetor Multidimensional           *
+* Data - 06/04/2025                                      * 
+* Autor: Guilherme Rodrigues dos Santos                  *
+*--------------------------------------------------------*/
+
+#include <stdio.h>
+#include <string.h>
+
+#define R 3 
+#define G 10
+#define P 10
+
+typedef struct {
+    char codigo[10];
+    int ocupado;
+} Produto;
+
+Produto armazem[R][G];
+
+int encontrar_posicao_existente(char codigo[]) {
+    for (int rua = 0; rua < R; rua++) {
+        for (int gondola = 0; gondola < G; gondola++) {
+            if (armazem[rua][gondola].ocupado && strcmp(armazem[rua][gondola].codigo, codigo) == 0) {
+                return rua * 10 + gondola;
+            }
+        }
+    }
+    return -1;
+}
+
+void estocar_produto() {
+    char codigo[10];
+    printf("Digite o codigo do produto: ");
+    scanf("%s", codigo);
+
+    int pos = encontrar_posicao_existente(codigo);
+    if (pos != -1) {
+        int rua = pos / 10;
+        int gondola = pos % 10;
+        printf("Produto %s ja esta estocado em Rua %c Gondola %d.\n", codigo, 'A' + rua, gondola + 1);
+        return;
+    }
+
+    for (int rua = 0; rua < R; rua++) {
+        for (int gondola = 0; gondola < G; gondola++) {
+            if (!armazem[rua][gondola].ocupado) {
+                strcpy(armazem[rua][gondola].codigo, codigo);
+                armazem[rua][gondola].ocupado = 1;
+                printf("Produto %s estocado em Rua %c Gondola %d.\n", codigo, 'A' + rua, gondola + 1);
+                return;
+            }
+        }
+    }
+
+    printf("Armazem cheio! Nao ha espaco para estocar o produto.\n");
+}
+
+void retirar_produto() {
+    char codigo[10];
+    printf("Digite o codigo do produto a retirar: ");
+    scanf("%s", codigo);
+
+    for (int rua = 0; rua < R; rua++) {
+        for (int gondola = 0; gondola < G; gondola++) {
+            if (armazem[rua][gondola].ocupado && strcmp(armazem[rua][gondola].codigo, codigo) == 0) {
+                armazem[rua][gondola].ocupado = 0;
+                printf("Produto %s retirado da Rua %c Gondola %d.\n", codigo, 'A' + rua, gondola + 1);
+                return;
+            }
+        }
+    }
+
+    printf("Produto %s nao encontrado no estoque.\n", codigo);
+}
+
+void visualizar_estoque() {
+    printf("\n=== Estoque Atual ===\n");
+    for (int rua = 0; rua < R; rua++) {
+        for (int gondola = 0; gondola < G; gondola++) {
+            if (armazem[rua][gondola].ocupado) {
+                printf("Rua %c Gondola %d -> Produto: %s\n", 'A' + rua, gondola + 1, armazem[rua][gondola].codigo);
+            }
+        }
+    }
+    printf("======================\n");
+}
+
+int main() {
+    int opcao;
+
+    do {
+        printf("\n--- Menu Armazem ---\n");
+        printf("1. Estocar produto\n");
+        printf("2. Retirar produto\n");
+        printf("3. Visualizar estoque\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                estocar_produto();
+                break;
+            case 2:
+                retirar_produto();
+                break;
+            case 3:
+                visualizar_estoque();
+                break;
+            case 0:
+                printf("Encerrando sistema...\n");
+                break;
+            default:
+                printf("Opcao invalida. Tente novamente.\n");
+        }
+
+    } while (opcao != 0);
+
+    return 0;
+}
