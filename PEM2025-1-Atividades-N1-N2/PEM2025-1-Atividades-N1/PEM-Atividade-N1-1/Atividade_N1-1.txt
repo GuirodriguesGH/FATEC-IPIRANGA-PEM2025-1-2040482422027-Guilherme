@@ -1,0 +1,108 @@
+/*-------------------------------------------------------*
+*                      FATEC Ipiranga                    *
+* Disciplina: Programaçao Estruturada e Modular          *
+*          Prof. Veríssimo                               *
+*--------------------------------------------------------*
+* Objetivo do Programa: Variáveis Compostas Homogêneas   *
+* Data - 05/04/2025                                      * 
+* Autor: Guilherme Rodrigues dos Santos                  *
+*--------------------------------------------------------*/
+
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_CANDIDATOS 50
+#define NOME_LEN 100
+
+typedef struct {
+    char nome[NOME_LEN];
+    float PE[4];
+    float AC[5];
+    float PP[10];
+    float EB[3];
+    float NF;
+} Candidato;
+
+float calcularNotaFinal(float PE[], float AC[], float PP[], float EB[]) {
+    float soma_PE = 0, soma_AC = 0, soma_PP = 0, soma_EB = 0;
+    float PE_media, AC_media, PP_media, EB_media;
+
+    for (int i = 0; i < 4; i++) soma_PE += PE[i];
+    for (int i = 0; i < 5; i++) soma_AC += AC[i];
+    for (int i = 0; i < 10; i++) soma_PP += PP[i];
+    for (int i = 0; i < 3; i++) soma_EB += EB[i];
+
+    PE_media = (soma_PE - PE[0] - PE[3]) / 2.0;
+    AC_media = (soma_AC - AC[0] - AC[4]) / 3.0;
+    PP_media = (soma_PP - PP[0] - PP[9]) / 8.0;
+    EB_media = (soma_EB - EB[0] - EB[2]) / 1.0;
+
+    return (PE_media * 0.3) + (AC_media * 0.1) + (PP_media * 0.4) + (EB_media * 0.2);
+}
+
+void ordenarPorNotaFinal(Candidato candidatos[], int n) {
+    Candidato temp;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (candidatos[i].NF < candidatos[j].NF) {
+                temp = candidatos[i];
+                candidatos[i] = candidatos[j];
+                candidatos[j] = temp;
+            }
+        }
+    }
+}
+
+int main() {
+    Candidato candidatos[MAX_CANDIDATOS];
+    int n = 0;
+
+    while (n < MAX_CANDIDATOS) {
+        printf("\nDigite o nome do candidato #%d (ou 'fim' para encerrar): ", n + 1);
+        fgets(candidatos[n].nome, NOME_LEN, stdin);
+        candidatos[n].nome[strcspn(candidatos[n].nome, "\n")] = 0;
+
+        if (strcmp(candidatos[n].nome, "fim") == 0) {
+            break;
+        }
+
+        printf("\nDigite as notas da Prova Escrita (PE) [4 notas]:\n");
+        for (int i = 0; i < 4; i++) {
+            printf("Nota %d: ", i + 1);
+            scanf("%f", &candidatos[n].PE[i]);
+        }
+
+        printf("\nDigite as notas da Analise Curricular (AC) [5 notas]:\n");
+        for (int i = 0; i < 5; i++) {
+            printf("Nota %d: ", i + 1);
+            scanf("%f", &candidatos[n].AC[i]);
+        }
+
+        printf("\nDigite as notas da Prova Pratica (PP) [10 notas]:\n");
+        for (int i = 0; i < 10; i++) {
+            printf("Nota %d: ", i + 1);
+            scanf("%f", &candidatos[n].PP[i]);
+        }
+
+        printf("\nDigite as notas da Entrevista em Banca (EB) [3 notas]:\n");
+        for (int i = 0; i < 3; i++) {
+            printf("Nota %d: ", i + 1);
+            scanf("%f", &candidatos[n].EB[i]);
+        }
+
+        candidatos[n].NF = calcularNotaFinal(candidatos[n].PE, candidatos[n].AC, candidatos[n].PP, candidatos[n].EB);
+
+        n++;
+
+        getchar();
+    }
+
+    ordenarPorNotaFinal(candidatos, n);
+
+    printf("\nRanking dos 15 melhores candidatos:\n");
+    for (int i = 0; i < (n < 15 ? n : 15); i++) {
+        printf("\n%d. %s - Nota Final: %.2f\n", i + 1, candidatos[i].nome, candidatos[i].NF);
+    }
+
+    return 0;
+}
