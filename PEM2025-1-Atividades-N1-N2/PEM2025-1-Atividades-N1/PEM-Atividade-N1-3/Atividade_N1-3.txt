@@ -1,0 +1,138 @@
+/*-------------------------------------------------------*
+*                      FATEC Ipiranga                    *
+* Disciplina: Programaçao Estruturada e Modular          *
+*          Prof. Veríssimo                               *
+*--------------------------------------------------------*
+* Objetivo do Programa: Modularizaçao                    *
+* Data - 07/04/2025                                      * 
+* Autor: Guilherme Rodrigues dos Santos                  *
+*--------------------------------------------------------*/
+
+#include <stdio.h>
+#include <string.h>
+
+#define RUAS 3
+#define GONDOLAS 10
+
+typedef struct {
+    char codigo[10];
+    int ocupado;
+} Produto;
+
+void inicializar_armazem(Produto (*armazem)[GONDOLAS]);
+void menu(Produto (*armazem)[GONDOLAS]);
+void estocar_produto(Produto (*armazem)[GONDOLAS]);
+void retirar_produto(Produto (*armazem)[GONDOLAS]);
+void visualizar_estoque(Produto (*armazem)[GONDOLAS]);
+int encontrar_posicao_existente(Produto (*armazem)[GONDOLAS], const char *codigo, int *rua_out, int *gondola_out);
+
+int main() {
+    Produto armazem[RUAS][GONDOLAS];
+    inicializar_armazem(armazem);
+    menu(armazem);
+    return 0;
+}
+
+void inicializar_armazem(Produto (*armazem)[GONDOLAS]) {
+    for (int i = 0; i < RUAS; i++) {
+        for (int j = 0; j < GONDOLAS; j++) {
+            armazem[i][j].ocupado = 0;
+            strcpy(armazem[i][j].codigo, "");
+        }
+    }
+}
+
+void menu(Produto (*armazem)[GONDOLAS]) {
+    int opcao;
+    do {
+        printf("\n--- Menu Armazem ---\n");
+        printf("1. Estocar produto\n");
+        printf("2. Retirar produto\n");
+        printf("3. Visualizar estoque\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                estocar_produto(armazem);
+                break;
+            case 2:
+                retirar_produto(armazem);
+                break;
+            case 3:
+                visualizar_estoque(armazem);
+                break;
+            case 0:
+                printf("Encerrando sistema...\n");
+                break;
+            default:
+                printf("Opcao invalida. Tente novamente.\n");
+        }
+    } while (opcao != 0);
+}
+
+void estocar_produto(Produto (*armazem)[GONDOLAS]) {
+    char codigo[10];
+    printf("Digite o codigo do produto: ");
+    scanf("%s", codigo);
+
+    int rua, gondola;
+    if (encontrar_posicao_existente(armazem, codigo, &rua, &gondola)) {
+        printf("Produto %s ja esta estocado em Rua %c Gondola %d.\n", codigo, 'A' + rua, gondola + 1);
+        return;
+    }
+
+    for (int r = 0; r < RUAS; r++) {
+        for (int g = 0; g < GONDOLAS; g++) {
+            if (armazem[r][g].ocupado == 0) {
+                strcpy(armazem[r][g].codigo, codigo);
+                armazem[r][g].ocupado = 1;
+                printf("Produto %s estocado em Rua %c Gondola %d.\n", codigo, 'A' + r, g + 1);
+                return;
+            }
+        }
+    }
+
+    printf("Armazem cheio! Nao ha espaço disponivel.\n");
+}
+
+void retirar_produto(Produto (*armazem)[GONDOLAS]) {
+    char codigo[10];
+    printf("Digite o codigo do produto a retirar: ");
+    scanf("%s", codigo);
+
+    int rua, gondola;
+    if (encontrar_posicao_existente(armazem, codigo, &rua, &gondola)) {
+        armazem[rua][gondola].ocupado = 0;
+        strcpy(armazem[rua][gondola].codigo, "");
+        printf("Produto %s retirado da Rua %c Gondola %d.\n", codigo, 'A' + rua, gondola + 1);
+    } else {
+        printf("Produto %s nao encontrado no estoque.\n", codigo);
+    }
+}
+
+void visualizar_estoque(Produto (*armazem)[GONDOLAS]) {
+    printf("\n=== Estoque Atual ===\n");
+    for (int r = 0; r < RUAS; r++) {
+        for (int g = 0; g < GONDOLAS; g++) {
+            if (armazem[r][g].ocupado) {
+                printf("Rua %c Gondola %d -> Produto: %s\n", 'A' + r, g + 1, armazem[r][g].codigo);
+            }
+        }
+    }
+    printf("======================\n");
+}
+
+int encontrar_posicao_existente(Produto (*armazem)[GONDOLAS], const char *codigo, int *rua_out, int *gondola_out) {
+    for (int r = 0; r < RUAS; r++) {
+        for (int g = 0; g < GONDOLAS; g++) {
+            if (armazem[r][g].ocupado && strcmp(armazem[r][g].codigo, codigo) == 0) {
+                *rua_out = r;
+                *gondola_out = g;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
